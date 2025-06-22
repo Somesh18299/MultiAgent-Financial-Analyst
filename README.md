@@ -74,7 +74,7 @@ If you prefer to run services separately:
 ### System Parameters
 
 The system uses fixed parameters for consistent performance:
-- **Target Score**: 5 (minimum quality score for analysis)
+- **Target Score**: 6 (minimum quality score for analysis)
 - **Max Retries**: 5 (maximum retry attempts)
 - **Search Results**: 3 per query
 - **Timeout**: 300 seconds (5 minutes)
@@ -256,10 +256,6 @@ curl -X POST http://localhost:8000/analyze \
      -d '{"query": "test query"}'
 ```
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -267,13 +263,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 📞 Support
-
-For questions and support:
-- Open an issue on GitHub
-- Check the API documentation at http://localhost:8000/docs
-- Review logs for error details
 
 ## 🎉 Acknowledgments
 

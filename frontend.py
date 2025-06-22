@@ -18,7 +18,7 @@ def call_analysis_api(query: str) -> Optional[Dict]:
     try:
         payload = {
             "query": query,
-            "target_score": 5,  # Fixed value
+            "target_score": 6,  # Fixed value
             "max_retries": 5,   # Fixed value
             "purpose": "financial analysis"
         }

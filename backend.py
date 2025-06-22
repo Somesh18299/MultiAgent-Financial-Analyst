@@ -26,7 +26,7 @@ app.add_middleware(
 
 class AnalysisRequest(BaseModel):
     query: str
-    target_score: int = 5  # Fixed default value
+    target_score: int = 6  # Fixed default value
     max_retries: int = 5   # Fixed default value
     purpose: str = "financial analysis"
 

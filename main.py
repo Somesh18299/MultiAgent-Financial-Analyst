@@ -22,6 +22,16 @@ import signal
 import webbrowser
 from pathlib import Path
 
+# Load environment variables FIRST
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # This loads the .env file
+    print("✅ Environment file loaded")
+except ImportError:
+    print("⚠️ python-dotenv not installed, relying on system environment variables")
+except Exception as e:
+    print(f"⚠️ Error loading .env file: {e}")
+
 # Configuration
 BACKEND_HOST = "localhost"
 BACKEND_PORT = 8000
@@ -33,18 +43,50 @@ def check_requirements():
     required_vars = ["GROQ_API_KEY", "TAVILY_API_KEY"]
     missing_vars = []
     
+    print("🔍 Checking environment variables...")
     for var in required_vars:
-        if not os.environ.get(var):
+        value = os.environ.get(var)
+        if not value:
             missing_vars.append(var)
+        else:
+            # Show first few characters for confirmation
+            masked_value = value[:8] + "..." if len(value) > 8 else value
+            print(f"   ✅ {var}: {masked_value}")
     
     if missing_vars:
-        print("❌ Missing required environment variables:")
+        print("\n❌ Missing required environment variables:")
         for var in missing_vars:
             print(f"   - {var}")
-        print("\nPlease set these variables in your .env file or environment.")
+        
+        print("\n🔧 Troubleshooting steps:")
+        print("1. Check if you have a .env file in the current directory")
+        print("2. Verify the .env file contains:")
+        print("   GROQ_API_KEY=your_groq_api_key_here")
+        print("   TAVILY_API_KEY=your_tavily_api_key_here")
+        print("3. Make sure there are no spaces around the = sign")
+        print("4. Ensure the .env file is in the same directory as this script")
+        
+        # Check for .env file
+        env_file = Path(".env")
+        if env_file.exists():
+            print(f"   ✅ .env file found at: {env_file.absolute()}")
+            try:
+                with open(env_file, 'r') as f:
+                    content = f.read()
+                    if "GROQ_API_KEY" in content or "TAVILY_API_KEY" in content:
+                        print("   ✅ API keys found in .env file")
+                        print("   ⚠️  Try running the script again, or check for typos in variable names")
+                    else:
+                        print("   ❌ API keys not found in .env file")
+            except Exception as e:
+                print(f"   ❌ Error reading .env file: {e}")
+        else:
+            print("   ❌ .env file not found")
+            print("   💡 Create a .env file with your API keys")
+        
         return False
     
-    print("✅ Environment variables check passed")
+    print("✅ All environment variables are set")
     return True
 
 def check_dependencies():
@@ -58,12 +100,13 @@ def check_dependencies():
         "langchain-groq": "langchain_groq",
         "langchain-tavily": "langchain_tavily",
         "langgraph": "langgraph",
-        "python-dotenv": "dotenv",  # This was the issue!
+        "python-dotenv": "dotenv",
         "pydantic": "pydantic"
     }
     
     missing_packages = []
     
+    print("🔍 Checking Python packages...")
     for package_name, import_name in package_mappings.items():
         try:
             # Handle nested imports
@@ -74,18 +117,20 @@ def check_dependencies():
                     module = getattr(module, part)
             else:
                 __import__(import_name)
+            print(f"   ✅ {package_name}")
         except (ImportError, AttributeError):
             missing_packages.append(package_name)
+            print(f"   ❌ {package_name}")
     
     if missing_packages:
-        print("❌ Missing required packages:")
+        print("\n❌ Missing required packages:")
         for package in missing_packages:
             print(f"   - {package}")
         print("\nInstall missing packages with:")
         print(f"pip install {' '.join(missing_packages)}")
         return False
     
-    print("✅ Dependencies check passed")
+    print("✅ All dependencies are installed")
     return True
 
 def start_backend():
@@ -235,23 +280,60 @@ def print_urls():
     print(f"   Backend API:          http://{BACKEND_HOST}:{BACKEND_PORT}")
     print(f"   API Documentation:    http://{BACKEND_HOST}:{BACKEND_PORT}/docs")
 
+def test_env_loading():
+    """Test if environment loading works properly"""
+    print("\n🔬 Testing environment loading...")
+    
+    # Try to load environment again to be sure
+    try:
+        from dotenv import load_dotenv
+        result = load_dotenv(override=True)  # Override existing vars
+        print(f"   load_dotenv() result: {result}")
+    except Exception as e:
+        print(f"   Error in load_dotenv(): {e}")
+    
+    # Check current working directory
+    print(f"   Current directory: {os.getcwd()}")
+    
+    # List files in current directory
+    env_files = [f for f in os.listdir('.') if f.startswith('.env')]
+    print(f"   Environment files found: {env_files}")
+    
+    # Check all environment variables starting with GROQ or TAVILY
+    relevant_vars = {k: v[:10] + "..." if len(v) > 10 else v 
+                    for k, v in os.environ.items() 
+                    if k.startswith(('GROQ', 'TAVILY'))}
+    print(f"   Relevant env vars: {relevant_vars}")
+
 def main():
     """Main application launcher"""
     print_banner()
     
+    # Test environment loading first
+    test_env_loading()
+    
     # Check requirements
     if not check_requirements():
+        print("\n💡 If you're sure your .env file is correct, try:")
+        print("1. export GROQ_API_KEY='your_key_here'")
+        print("2. export TAVILY_API_KEY='your_key_here'")
+        print("3. python main.py")
         sys.exit(1)
     
     if not check_dependencies():
         sys.exit(1)
     
     # Check if required files exist
-    required_files = ["backend.py", "frontend.py", "graph.py"]
+    required_files = ["backend.py", "frontend.py"]
+    missing_files = []
     for file in required_files:
         if not Path(file).exists():
-            print(f"❌ Required file not found: {file}")
-            sys.exit(1)
+            missing_files.append(file)
+    
+    if missing_files:
+        print(f"❌ Required files not found: {missing_files}")
+        print("Make sure you're in the correct directory with all project files")
+        sys.exit(1)
     
     print("✅ All requirements satisfied")
     

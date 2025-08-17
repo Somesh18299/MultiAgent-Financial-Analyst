@@ -393,7 +393,6 @@ def main():
         cleanup_processes(backend_process, frontend_process)
 
 if __name__ == "__main__":
-    # Handle Ctrl+C gracefully
     def signal_handler(signum, frame):
         print("\n🛑 Interrupt received, shutting down...")
         sys.exit(0)

@@ -268,7 +268,7 @@ def print_banner():
 ║  📊 Intelligent Retry Mechanisms                            ║
 ║  🔍 Multi-Source Data Aggregation                           ║
 ║                                                              ║
-║  Built with: FastAPI + LangGraph + Streamlit                ║
+║  Built with: FastAPI + LangGraph + Streamlit                 ║
 ╚══════════════════════════════════════════════════════════════╝
 """
     print(banner)
